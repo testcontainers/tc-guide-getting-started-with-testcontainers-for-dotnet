@@ -32,16 +32,16 @@ Postgres database.
 Create a .NET source and test project from your favorite IDE. Once the projects
 are created, add the following dependencies to the source and test project.
 
-.Optional Source project
+.Source project
 [source,xml,indent=0]
 ----
 include::{codebase}/src/GettingStarted/GettingStarted.csproj[lines="6"]
 ----
 
-.Optional Test project
+.Test project
 [source,xml,indent=0]
 ----
-include::{codebase}/src/GettingStarted.Tests/GettingStarted.Tests.csproj[lines="6..8"]
+include::{codebase}/tests/GettingStarted.Tests/GettingStarted.Tests.csproj[lines="6..8"]
 ----
 
 We have added *Npgsql*, a Postgres ADO.NET Data Provider for talking to the
@@ -51,16 +51,15 @@ Postgres database, and *xUnit.net* for testing our service.
 
 We are going to create a `CustomerService` class to manage customer details.
 
-First, let us create a `Customer` class as follows:
+First, let us create a `Customer` type as follows:
 
 [source%nowrap,csharp]
 ----
 include::{codebase}/src/GettingStarted/Customer.cs[]
 ----
 
-Create a `DbConnectionProvider` class to hold ADO.NET connection parameters and
-create a method to get a database connection, as follows:
-
+Create a `DbConnectionProvider` class to hold ADO.NET connection parameters
+(connection string) and create a method to get a database connection, as follows:
 
 [source%nowrap,csharp]
 ----
@@ -71,7 +70,7 @@ Create a `CustomerService` class and add the following code:
 
 [source%nowrap,csharp]
 ----
-include::{codebase}/src/GettingStarted/DbConnectionProvider.java[]
+include::{codebase}/src/GettingStarted/CustomerService.cs[]
 ----
 
 Let us understand what is going on in the `CustomerService` class.
@@ -80,11 +79,11 @@ Let us understand what is going on in the `CustomerService` class.
   connection using ADO.NET.
 * We have the `CreateCustomersTable()` method that creates the `customers`
   table if it does not already exist.
-* We have the `Create(Customer)` method that inserts a new customer record into
-  the database.
 * We have the `GetCustomers()` method that fetches all rows from the
   `customers` table, populates data into `Customer` objects, and returns a list
   of `Customer` objects.
+* We have the `Create(Customer)` method that inserts a new customer record into
+  the database.
 
 Now let us see how we can test the `CustomerService` logic using Testcontainers.
 
@@ -93,10 +92,10 @@ Now let us see how we can test the `CustomerService` logic using Testcontainers.
 Before writing Testcontainers-based tests, let's add Testcontainers
 dependencies to the test project as follows:
 
-.Optional Test project
+.Test project
 [source,xml,indent=0]
 ----
-include::{codebase}/src/GettingStarted.Tests/GettingStarted.Tests.csproj[lines="9"]
+include::{codebase}/tests/GettingStarted.Tests/GettingStarted.Tests.csproj[lines="9"]
 ----
 
 As we are using a Postgres database for our application, we added the
@@ -117,7 +116,7 @@ include::{codebase}/tests/GettingStarted.Tests/CustomerServiceTest.cs[]
 Let us understand the code in our `CustomerServiceTest` class.
 
 * We declare `PostgreSqlContainer` by passing the Docker image name
-  postgres:15-alpine to the Postgres builder.
+  `postgres:15-alpine` to the Postgres builder.
 * The Postgres container is started using xUnit.net's `IAsyncLifetime`
   interface, which executes `InitializeAsync` immediately after the test class
   has been created.
@@ -125,7 +124,7 @@ Let us understand the code in our `CustomerServiceTest` class.
   `CustomerService`, insert two customer records into the database, fetch all the
   existing customers, and assert the number of customers.
 * Finally, we dispose of the Postgres container in the `DisposeAsync()` member,
-  which gets executed after all the test methods in that class are executed.
+  which gets executed after the test method is executed.
 
 If you run the customer service test, you can see in the IDE's debug output
 that Testcontainers pulled the Postgres Docker image from DockerHub if it's not
@@ -142,7 +141,6 @@ We have seen how writing an integration test using Testcontainers is very
 similar to writing a unit test that you can run from your IDE. Also, any of
 your teammates can clone the project and run tests without installing Postgres
 on their computers.
-
 
 In addition to Postgres, Testcontainers provides dedicated
 https://www.nuget.org/profiles/Testcontainers[modules] for many commonly used

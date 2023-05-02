@@ -18,7 +18,6 @@ public sealed class CustomerService
 
         using var connection = _dbConnectionProvider.GetConnection();
         using var command = connection.CreateCommand();
-
         command.CommandText = "SELECT id, name FROM customers";
         command.Connection.Open();
 
