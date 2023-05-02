@@ -7,6 +7,7 @@ repo: https://github.com/testcontainers/tc-guide-getting-started-with-testcontai
 languages:
   - C#
 tags:
+  - dotnet
   - postgresql
 ---
 :toc:
@@ -24,21 +25,24 @@ to learn more about Testcontainers.
 
 Let us look at how we can use Testcontainers for testing a .NET application using a Postgres database.
 
-// TODO:
+== Create a solution file with a source and test project
 
-== Create a Java project with Maven
+Create a .NET source and test project from your favorite IDE.
+Once the projects are created, add the following dependencies to the source and test project.
 
-Create a Java project with Maven build tool support from your favorite IDE.
-We are using Maven in this article, but you can use Gradle if you prefer.
-Once the project is created, add the following dependencies to the *pom.xml*.
-
+.Optional Source project
 [source,xml,indent=0]
 ----
-include::{codebase}/pom.xml[lines="18..35,42..50,72..73"]
+include::{codebase}/src/GettingStarted/GettingStarted.csproj[lines="6"]
 ----
 
-We have added a Postgres JDBC driver for talking to the Postgres database, *logback-classic* for logging and *junit-jupiter* for testing with JUnit 5.
-Also, we have used the latest version of *maven-surefire-plugin* to support JUnit 5 tests.
+.Optional Test project
+[source,xml,indent=0]
+----
+include::{codebase}/src/GettingStarted.Tests/GettingStarted.Tests.csproj[lines="6..8"]
+----
+
+We have added *Npgsql*, a Postgres ADO.NET Data Provider for talking to the Postgres database, and *xUnit.net* for testing our service.
 
 == Implement business logic
 
@@ -46,73 +50,71 @@ We are going to create *CustomerService* class to manage customer details.
 
 First let us create a *Customer* class as follows:
 
-[source,java]
+[source%nowrap,csharp]
 ----
-include::{codebase}/src/main/java/com/testcontainers/demo/Customer.java[]
-----
-
-Create *DBConnectionProvider.java* class to hold JDBC connection parameters and create a method to get database *Connection* as follows:
-
-[source,java]
-----
-include::{codebase}/src/main/java/com/testcontainers/demo/DBConnectionProvider.java[]
+include::{codebase}/src/GettingStarted/Customer.cs[]
 ----
 
-Create *CustomerService.java* class and add the following code:
+Create *DbConnectionProvider.cs* class to hold ADO.NET connection parameters and create a method to get database *Connection* as follows:
 
-[source,java]
+[source%nowrap,csharp]
 ----
-include::{codebase}/src/main/java/com/testcontainers/demo/CustomerService.java[]
+include::{codebase}/src/GettingStarted/DbConnectionProvider.cs[]
 ----
 
-Let us understand what is going on in CustomerService class.
+Create *CustomerService.cs* class and add the following code:
 
-* We are calling *connectionProvider.getConnection()* method to get a database Connection using JDBC API
-* We have the *createCustomersTableIfNotExists()* method that creates the customers table if it does not already exist.
-* We have *createCustomer()* method that inserts a new customer record into the database.
-* We have the *getAllCustomers()* method that fetches all rows from *customers* table, populates data into *Customer* objects
-  and returns a list of Customer objects.
+[source%nowrap,csharp]
+----
+include::{codebase}/src/GettingStarted/DbConnectionProvider.java[]
+----
+
+Let us understand what is going on in *CustomerService* class.
+
+* We are calling `_dbConnectionProvider.GetConnection()` member to get a database connection using ADO.NET.
+* We have the `CreateCustomersTable()` member that creates the `customers` table if it does not already exist.
+* We have `Create(Customer)` member that inserts a new customer record into the database.
+* We have `GetCustomers()` member that fetches all rows from `customers` table, populates data into `Customer` objects and returns a list of `Customer` objects.
 
 Now let us see how we can test *CustomerService* logic using Testcontainers.
 
 == Add Testcontainers dependencies
-Before writing Testcontainers based tests let's add Testcontainers dependencies in *pom.xml* as follows:
 
+Before writing Testcontainers based tests let's add Testcontainers dependencies to the test project as follows:
+
+.Optional Test project
 [source,xml,indent=0]
 ----
-include::{codebase}/pom.xml[lines="36..41"]
+include::{codebase}/src/GettingStarted.Tests/GettingStarted.Tests.csproj[lines="9"]
 ----
 
-As we are using a Postgres database for our application, we added the Testcontainers Postgres module as a test dependency.
+As we are using a Postgres database for our application, we added the Testcontainers Postgres https://www.nuget.org/packages/Testcontainers.PostgreSql[module] as a test dependency.
 
 == Write test using Testcontainers
-Create *CustomerServiceTest.java* under *src/test/java* with following code:
 
-[source,java]
+Create *CustomerServiceTest.cs* in the test project with following code:
+
+[source%nowrap,csharp]
 ----
-include::{codebase}/src/test/java/com/testcontainers/demo/CustomerServiceTest.java[]
+include::{codebase}/tests/GettingStarted.Tests/CustomerServiceTest.cs[]
 ----
 
-Let us understand the code in our CustomerServiceTest.
+Let us understand the code in our *CustomerServiceTest* class.
+immediately after the class has been created
 
-* We declared *PostgreSQLContainer* by passing the Docker image name *postgres:15-alpine*.
-* The Postgres container is started using JUnit 5 *@BeforeAll* callback, which gets executed before running any test methods.
-* In *@BeforeEach* callback method, which gets executed before running every test method, we have created a *DBConnectionProvider* instance
-  by passing the JDBC connection parameters obtained from the Postgres container and also created a *CustomerService* instance.
-  In the *CustomerService* constructor, we are creating the customers table if it does not already exist.
-* We have a *shouldGetCustomers()* test where we are inserting 2 customer records into the database, fetching all the existing customers
-  and asserting the number of customers.
-* Finally, we are stopping the postgres container in *@AfterAll* callback method, which gets executed after all the test methods
-  in that class are executed.
+* We declared `PostgreSqlContainer` by passing the Docker image name `postgres:15-alpine` to the Postgres builder.
+* The Postgres container is started using xUnit.net's `IAsyncLifetime` interface, which executes `InitializeAsync` immediately after the test class has been created.
+* We have a `ShouldReturnTwoCustomers()` test where we initialze `CustomerService`, inserting two customer records into the database, fetching all the existing customers and asserting the number of customers.
+* Finally, we are disposing the Postgres container in `DisposeAsync()` member, which gets executed after all the test methods in that class are executed.
 
-If you run the *CustomerServiceTest* you can see in the logs that Testcontainers pulled the Postgres Docker image
+If you run the customer service test you can see in the IDE's debug output that Testcontainers pulled the Postgres Docker image
 from DockerHub if not already available locally, started the container and executed the test.
 
 Voila!!! You have your first Testcontainers-based test running.
 
 == Conclusion
 
-We have explored how to use Testcontainers for Java library for testing a Java application using a Postgres database.
+We have explored how to use Testcontainers for .NET library for testing a .NET application using a Postgres database.
 
 We have seen how writing an integration test using Testcontainers is very similar to writing a unit test which you can run from your IDE.
 Also, any of your teammates can clone the project and run tests without installing Postgres on their computers.
@@ -123,6 +125,5 @@ You can use Testcontainers to run any containerized dependency for your tests!
 You can explore more about Testcontainers at https://www.testcontainers.com/.
 
 == Further Reading
-* https://testcontainers.com/guides/testcontainers-container-lifecycle/[Testcontainers container lifecycle management using JUnit 5]
-* https://testcontainers.com/guides/replace-h2-with-real-database-for-testing/[The simplest way to replace H2 with a real database for testing]
-* https://testcontainers.com/guides/testing-spring-boot-rest-api-using-testcontainers/[Getting started with Testcontainers in a Java Spring Boot Project]
+
+* https://testcontainers.com/guides/testing-an-aspnet-core-web-app/[Testing an ASP.NET Core web app]
