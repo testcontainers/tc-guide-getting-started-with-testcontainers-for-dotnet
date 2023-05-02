@@ -1,14 +1,17 @@
-= GUIDE_TITLE
+= Getting started with Testcontainers for .NET
 
-This is sample code for [GUIDE_TITLE](https://testcontainers.com/guides/GUIDE_URL) Guide.
+This is sample code for [Getting started with Testcontainers for .NET](https://testcontainers.com/guides/getting-started-with-testcontainers-for-dotnet) guide.
 
 == 1. Setup Environment
-Make sure you have a [compatible Docker environment](https://www.testcontainers.org/supported_docker_environment/) installed.
+
+Make sure you have .NET 7 and a [compatible Docker environment](https://www.testcontainers.org/supported_docker_environment/) installed.
 
 For example:
 
 [source,shell]
 ----
+$ dotnet --list-sdks
+7.0.104 [C:\Program Files\dotnet\sdk]
 $ docker version
 ...
 Server: Docker Desktop 4.12.0 (85629)
@@ -19,25 +22,16 @@ Server: Docker Desktop 4.12.0 (85629)
 ...
 ----
 
-* Add language specific prerequisites here
-
-[source,shell]
-----
-$ java -version
-openjdk version "17.0.4" 2022-07-19
-OpenJDK Runtime Environment Temurin-17.0.4+8 (build 17.0.4+8)
-OpenJDK 64-Bit Server VM Temurin-17.0.4+8 (build 17.0.4+8, mixed mode, sharing)
-----
-
 == 2. Setup Project
 
 * Clone the repository
-[source,shell]
-----
-git clone https://github.com/testcontainers/TC_GUIDE_REPO_NAME.git
-cd TC_GUIDE_REPO_NAME
-----
-* Open the **TC_GUIDE_REPO_NAME** project in your favorite IDE.
+
+```shell
+git clone https://github.com/testcontainers/tc-guide-getting-started-with-testcontainers-for-dotnet.git
+cd tc-guide-getting-started-with-testcontainers-for-dotnet
+```
+
+* Open the **tc-guide-getting-started-with-testcontainers-for-dotnet** project in your favorite IDE.
 
 == 3. Run Tests
 
@@ -45,10 +39,7 @@ Run the command to run the tests.
 
 [source,shell]
 ----
-$ ./gradlew test //for Gradle
-$ ./mvnw verify  //for Maven
-$ go test ./...  //for Go
-$ npm test       //for Node
+$ dotnet test ./GettingStarted.sln
 ----
 
 The tests should pass.
