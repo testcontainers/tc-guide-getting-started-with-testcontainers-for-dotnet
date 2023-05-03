@@ -99,8 +99,7 @@ include::{codebase}/tests/GettingStarted.Tests/GettingStarted.Tests.csproj[lines
 ----
 
 As we are using a Postgres database for our application, we added the
-Testcontainers Postgres
-https://www.nuget.org/packages/Testcontainers.PostgreSql[module] as a test
+Testcontainers https://www.nuget.org/packages/Testcontainers.PostgreSql[Postgres module] as a test
 dependency.
 
 == Write test using Testcontainers
