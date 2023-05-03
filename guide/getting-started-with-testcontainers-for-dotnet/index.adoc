@@ -125,7 +125,7 @@ Let us understand the code in our `CustomerServiceTest` class.
 * Finally, the Postgres container is disposed in the `DisposeAsync()` member,
   which gets executed after the test method is executed.
 
-If you run the customer service test, you can see in the IDE's debug output
+By running the customer service test, you can see in the IDE's debug output
 that Testcontainers pulled the Postgres Docker image from DockerHub if it's not
 already available locally, started the container, and executed the test.
 
