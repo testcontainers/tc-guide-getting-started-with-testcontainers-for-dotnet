@@ -75,14 +75,14 @@ include::{codebase}/src/GettingStarted/CustomerService.cs[]
 
 Let us understand what is going on in the `CustomerService` class.
 
-* We are calling `_dbConnectionProvider.GetConnection()` to get a database
+* `_dbConnectionProvider.GetConnection()` gets a database
   connection using ADO.NET.
-* We have the `CreateCustomersTable()` method that creates the `customers`
+* `CreateCustomersTable()` method creates the `customers`
   table if it does not already exist.
-* We have the `GetCustomers()` method that fetches all rows from the
+* `GetCustomers()` method fetches all rows from the
   `customers` table, populates data into `Customer` objects, and returns a list
   of `Customer` objects.
-* We have the `Create(Customer)` method that inserts a new customer record into
+* `Create(Customer)` method inserts a new customer record into
   the database.
 
 Now let us see how we can test the `CustomerService` logic using Testcontainers.
