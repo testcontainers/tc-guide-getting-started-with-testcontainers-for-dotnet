@@ -114,15 +114,15 @@ include::{codebase}/tests/GettingStarted.Tests/CustomerServiceTest.cs[]
 
 Let us understand the code in our `CustomerServiceTest` class.
 
-* We declare `PostgreSqlContainer` by passing the Docker image name
+* Declare `PostgreSqlContainer` by passing the Docker image name
   `postgres:15-alpine` to the Postgres builder.
 * The Postgres container is started using xUnit.net's `IAsyncLifetime`
   interface, which executes `InitializeAsync` immediately after the test class
   has been created.
-* We have a `ShouldReturnTwoCustomers()` test where we initialize
+* `ShouldReturnTwoCustomers()` test initializes
   `CustomerService`, insert two customer records into the database, fetch all the
   existing customers, and assert the number of customers.
-* Finally, we dispose of the Postgres container in the `DisposeAsync()` member,
+* Finally, the Postgres container is disposed in the `DisposeAsync()` member,
   which gets executed after the test method is executed.
 
 If you run the customer service test, you can see in the IDE's debug output
