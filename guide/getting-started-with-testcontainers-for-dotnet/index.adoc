@@ -1,0 +1,154 @@
+---
+title: "Getting started with Testcontainers for .NET"
+date: 2023-05-02T09:39:58+05:30
+draft: false
+description: This guide will help you to get started with Testcontainers for .NET by demonstrating how you can use PostgreSQL for testing.
+repo: https://github.com/testcontainers/tc-guide-getting-started-with-testcontainers-for-dotnet
+languages:
+  - C#
+tags:
+  - dotnet
+  - postgresql
+---
+:toc:
+:toclevels: 2
+:codebase: https://raw.githubusercontent.com/testcontainers/tc-guide-getting-started-with-testcontainers-for-dotnet/main
+
+Testcontainers is a testing library that provides easy and lightweight APIs for
+bootstrapping integration tests with real services wrapped in Docker
+containers. Using Testcontainers, you can write tests that talk to the same
+type of services you use in production, without mocks or in-memory services.
+
+[NOTE]
+If you are new to Testcontainers, please read
+https://testcontainers.com/guides/introducing-testcontainers[What is
+Testcontainers, and why should you use it?] to learn more about it.
+
+Let us look at how we can use Testcontainers to test a .NET application using a
+Postgres database.
+
+== Create a solution file with a source and test project
+
+Create a .NET source and test project from your favorite IDE. Once the projects
+are created, add the following dependencies to the source and test project.
+
+.Source project
+[source,xml,indent=0]
+----
+include::{codebase}/src/GettingStarted/GettingStarted.csproj[lines="6"]
+----
+
+.Test project
+[source,xml,indent=0]
+----
+include::{codebase}/tests/GettingStarted.Tests/GettingStarted.Tests.csproj[lines="6..8"]
+----
+
+We have added *Npgsql*, a Postgres ADO.NET Data Provider for talking to the
+Postgres database, and *xUnit.net* for testing our service.
+
+== Implement business logic
+
+We are going to create a `CustomerService` class to manage customer details.
+
+First, let us create a `Customer` type as follows:
+
+[source%nowrap,csharp]
+----
+include::{codebase}/src/GettingStarted/Customer.cs[]
+----
+
+Create a `DbConnectionProvider` class to hold ADO.NET connection parameters
+(connection string) and create a method to get a database connection, as follows:
+
+[source%nowrap,csharp]
+----
+include::{codebase}/src/GettingStarted/DbConnectionProvider.cs[]
+----
+
+Create a `CustomerService` class and add the following code:
+
+[source%nowrap,csharp]
+----
+include::{codebase}/src/GettingStarted/CustomerService.cs[]
+----
+
+Let us understand what is going on in the `CustomerService` class.
+
+* `_dbConnectionProvider.GetConnection()` gets a database
+  connection using ADO.NET.
+* `CreateCustomersTable()` method creates the `customers`
+  table if it does not already exist.
+* `GetCustomers()` method fetches all rows from the
+  `customers` table, populates data into `Customer` objects, and returns a list
+  of `Customer` objects.
+* `Create(Customer)` method inserts a new customer record into
+  the database.
+
+Now let us see how we can test the `CustomerService` logic using Testcontainers.
+
+== Add Testcontainers dependencies
+
+Before writing Testcontainers-based tests, let's add Testcontainers
+dependencies to the test project as follows:
+
+.Test project
+[source,xml,indent=0]
+----
+include::{codebase}/tests/GettingStarted.Tests/GettingStarted.Tests.csproj[lines="9"]
+----
+
+As we are using a Postgres database for our application, we added the
+Testcontainers https://www.nuget.org/packages/Testcontainers.PostgreSql[Postgres module] as a test
+dependency.
+
+== Write test using Testcontainers
+
+Create a `CustomerServiceTest` class in the test project with the following
+code:
+
+[source%nowrap,csharp]
+----
+include::{codebase}/tests/GettingStarted.Tests/CustomerServiceTest.cs[]
+----
+
+Let us understand the code in our `CustomerServiceTest` class.
+
+* Declare `PostgreSqlContainer` by passing the Docker image name
+  `postgres:15-alpine` to the Postgres builder.
+* The Postgres container is started using xUnit.net's `IAsyncLifetime`
+  interface, which executes `InitializeAsync` immediately after the test class
+  has been created.
+* `ShouldReturnTwoCustomers()` test initializes
+  `CustomerService`, insert two customer records into the database, fetch all the
+  existing customers, and assert the number of customers.
+* Finally, the Postgres container is disposed in the `DisposeAsync()` member,
+  which gets executed after the test method is executed.
+
+By running the customer service test, you can see in the IDE's debug output
+that Testcontainers pulled the Postgres Docker image from DockerHub if it's not
+already available locally, started the container, and executed the test.
+
+Voila! You have your first Testcontainers-based test running.
+
+== Conclusion
+
+We have explored how to use Testcontainers for .NET library to test a .NET
+application using a Postgres database.
+
+We have seen how writing an integration test using Testcontainers is very
+similar to writing a unit test that you can run from your IDE. Also, any of
+your teammates can clone the project and run tests without installing Postgres
+on their computers.
+
+In addition to Postgres, Testcontainers provides dedicated
+https://www.nuget.org/profiles/Testcontainers[modules] for many commonly used
+SQL databases, NoSQL databases, messaging queues, etc. You can use
+Testcontainers to run any containerized dependency for your tests!
+
+You can explore more about Testcontainers at https://www.testcontainers.com/.
+
+== Further Reading
+
+* https://testcontainers.com/guides/testing-an-aspnet-core-web-app/[Testing an
+ASP.NET Core web app]
