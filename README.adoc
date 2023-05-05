@@ -1,6 +1,6 @@
 = Getting started with Testcontainers for .NET
 
-This is sample code for [Getting started with Testcontainers for .NET](https://testcontainers.com/guides/getting-started-with-testcontainers-for-dotnet) guide.
+This is sample code for the [Getting started with Testcontainers for .NET](https://testcontainers.com/guides/getting-started-with-testcontainers-for-dotnet) guide.
 
 == 1. Setup Environment
 
