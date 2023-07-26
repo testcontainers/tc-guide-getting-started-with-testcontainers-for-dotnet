@@ -29,23 +29,42 @@ Postgres database.
 
 == Create a solution file with a source and test project
 
-Create a .NET source and test project from your favorite IDE. Once the projects
-are created, add the following dependencies to the source and test project.
+Create a .NET source and test projects from your terminal or favorite IDE.
+
+[source,shell]
+----
+$ dotnet new sln -o TestcontainersDemo
+$ cd TestcontainersDemo
+$ dotnet new classlib -o CustomerService
+$ dotnet sln add ./CustomerService/CustomerService.csproj
+$ dotnet new xunit -o CustomerService.Tests
+$ dotnet sln add ./CustomerService.Tests/CustomerService.Tests.csproj
+$ dotnet add ./CustomerService.Tests/CustomerService.Tests.csproj reference ./CustomerService/CustomerService.csproj
+----
+
+Once the projects are created, add the *Npgsql* dependency to the source project as follows:
+
+[source,shell]
+----
+dotnet add ./CustomerService/CustomerService.csproj package Npgsql
+----
+
+Now you should have the following dependencies in the source and test projects.
 
 .Source project
 [source,xml,indent=0]
 ----
-include::{codebase}/src/GettingStarted/GettingStarted.csproj[lines="6"]
+include::{codebase}/TestcontainersDemo/CustomerService/CustomerService.csproj[lines="10"]
 ----
 
 .Test project
 [source,xml,indent=0]
 ----
-include::{codebase}/tests/GettingStarted.Tests/GettingStarted.Tests.csproj[lines="6..8"]
+include::{codebase}/TestcontainersDemo/CustomerService.Tests/CustomerService.Tests.csproj[lines="13..15"]
 ----
 
 We have added *Npgsql*, a Postgres ADO.NET Data Provider for talking to the
-Postgres database, and *xUnit.net* for testing our service.
+Postgres database, and using *xUnit* for testing our service.
 
 == Implement business logic
 
@@ -55,7 +74,7 @@ First, let us create a `Customer` type as follows:
 
 [source%nowrap,csharp]
 ----
-include::{codebase}/src/GettingStarted/Customer.cs[]
+include::{codebase}/TestcontainersDemo/CustomerService/Customer.cs[]
 ----
 
 Create a `DbConnectionProvider` class to hold ADO.NET connection parameters
@@ -63,14 +82,14 @@ Create a `DbConnectionProvider` class to hold ADO.NET connection parameters
 
 [source%nowrap,csharp]
 ----
-include::{codebase}/src/GettingStarted/DbConnectionProvider.cs[]
+include::{codebase}/TestcontainersDemo/CustomerService/DbConnectionProvider.cs[]
 ----
 
 Create a `CustomerService` class and add the following code:
 
 [source%nowrap,csharp]
 ----
-include::{codebase}/src/GettingStarted/CustomerService.cs[]
+include::{codebase}/TestcontainersDemo/CustomerService/CustomerService.cs[]
 ----
 
 Let us understand what is going on in the `CustomerService` class.
@@ -89,13 +108,20 @@ Now let us see how we can test the `CustomerService` logic using Testcontainers.
 
 == Add Testcontainers dependencies
 
-Before writing Testcontainers-based tests, let's add Testcontainers
-dependencies to the test project as follows:
+Before writing Testcontainers-based tests, let's add Testcontainers PostgreSql module
+dependency to the test project as follows:
+
+[source,shell]
+----
+dotnet add ./CustomerService.Tests/CustomerService.Tests.csproj package Testcontainers.PostgreSql
+----
+
+Now your test project should have *Testcontainers.PostgreSql* dependency added as follows:
 
 .Test project
 [source,xml,indent=0]
 ----
-include::{codebase}/tests/GettingStarted.Tests/GettingStarted.Tests.csproj[lines="9"]
+include::{codebase}/TestcontainersDemo/CustomerService.Tests/CustomerService.Tests.csproj[lines="16"]
 ----
 
 As we are using a Postgres database for our application, we added the
@@ -109,7 +135,7 @@ code:
 
 [source%nowrap,csharp]
 ----
-include::{codebase}/tests/GettingStarted.Tests/CustomerServiceTest.cs[]
+include::{codebase}/TestcontainersDemo/CustomerService.Tests/CustomerServiceTest.cs[]
 ----
 
 Let us understand the code in our `CustomerServiceTest` class.
@@ -125,7 +151,14 @@ Let us understand the code in our `CustomerServiceTest` class.
 * Finally, the Postgres container is disposed in the `DisposeAsync()` member,
   which gets executed after the test method is executed.
 
-By running the customer service test, you can see in the IDE's debug output
+Now let's run the tests as follows:
+
+[source,shell]
+----
+dotnet test
+----
+
+By running the customer service test, you can see in the output
 that Testcontainers pulled the Postgres Docker image from DockerHub if it's not
 already available locally, started the container, and executed the test.
 
