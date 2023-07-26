@@ -1,6 +1,4 @@
-using System.Collections.Generic;
-
-namespace GettingStarted;
+namespace Customers;
 
 public sealed class CustomerService
 {
@@ -19,7 +17,7 @@ public sealed class CustomerService
         using var connection = _dbConnectionProvider.GetConnection();
         using var command = connection.CreateCommand();
         command.CommandText = "SELECT id, name FROM customers";
-        command.Connection.Open();
+        command.Connection?.Open();
 
         using var dataReader = command.ExecuteReader();
         while (dataReader.Read())
@@ -48,7 +46,7 @@ public sealed class CustomerService
         command.CommandText = "INSERT INTO customers (id, name) VALUES(@id, @name)";
         command.Parameters.Add(id);
         command.Parameters.Add(name);
-        command.Connection.Open();
+        command.Connection?.Open();
         command.ExecuteNonQuery();
     }
 
@@ -57,7 +55,7 @@ public sealed class CustomerService
         using var connection = _dbConnectionProvider.GetConnection();
         using var command = connection.CreateCommand();
         command.CommandText = "CREATE TABLE IF NOT EXISTS customers (id BIGINT NOT NULL, name VARCHAR NOT NULL, PRIMARY KEY (id))";
-        command.Connection.Open();
+        command.Connection?.Open();
         command.ExecuteNonQuery();
     }
 }

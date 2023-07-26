@@ -1,9 +1,6 @@
-using System.Linq;
-using System.Threading.Tasks;
 using Testcontainers.PostgreSql;
-using Xunit;
 
-namespace GettingStarted.Tests;
+namespace Customers.Tests;
 
 public sealed class CustomerServiceTest : IAsyncLifetime
 {

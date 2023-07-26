@@ -1,7 +1,7 @@
 using System.Data.Common;
 using Npgsql;
 
-namespace GettingStarted;
+namespace Customers;
 
 public sealed class DbConnectionProvider
 {
